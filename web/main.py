@@ -19,6 +19,7 @@ VALID_FILES = [
     'dart-192.png',
     'embed-dart.html',
     'embed-flutter.html',
+    'embed-flutter_showcase.html',
     'embed-html.html',
     'embed-inline.html',
     'embed-.html',

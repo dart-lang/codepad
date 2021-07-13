@@ -147,6 +147,10 @@ build() {
   var newEmbedFlutterFile = _buildDir.join('scripts/embed_flutter.dart.js');
   log('$newEmbedFlutterFile compiled to ${_printSize(newEmbedFlutterFile)}');
 
+  var newEmbedFlutterShowcaseFile =
+      _buildDir.join('scripts/embed_flutter_showcase.dart.js');
+  log('$newEmbedFlutterShowcaseFile compiled to ${_printSize(newEmbedFlutterShowcaseFile)}');
+
   var newEmbedHtmlFile = _buildDir.join('scripts/embed_html.dart.js');
   log('$newEmbedHtmlFile compiled to ${_printSize(newEmbedHtmlFile)}');
 

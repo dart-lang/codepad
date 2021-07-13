@@ -121,6 +121,38 @@ main() => print(message);
             </code>
         </pre>
 
+        <p>mode-flutter_showcase, theme-light, run-true, width-450px, height-800px</p>
+        <pre>
+            <code class="language-run-dartpad:theme-light:mode-flutter_showcase:run-true:width-450px:height-800px">
+import 'package:flutter/material.dart';
+
+Future main() async {
+  runApp(MyApp());
+}
+
+class MyApp extends StatefulWidget {
+  MyApp();
+
+  _MyAppState createState() => _MyAppState();
+}
+
+class _MyAppState extends State {
+  Widget build(BuildContext context) {
+    return MaterialApp(
+      home: Scaffold(
+        appBar: AppBar(),
+        body: Center(
+          child: Container(
+            child: Text('Hello, World!'),
+          ),
+        ),
+      ),
+    );
+  }
+}
+            </code>
+        </pre>
+
         <p>mode-html</p>
         <pre>
             <code class="language-run-dartpad:mode-html">

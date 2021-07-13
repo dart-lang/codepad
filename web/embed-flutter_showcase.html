@@ -1,0 +1,234 @@
+<!DOCTYPE html>
+
+<!-- Copyright (c) 2019, the Dart project authors.  Please see the AUTHORS file
+for details. All rights reserved. Use of this source code is governed by a
+BSD-style license that can be found in the LICENSE file. -->
+
+<html>
+<head>
+    <meta charset="utf-8">
+    <link rel="shortcut icon" type="image/png" sizes="32x32" href="dart-32.png">
+    <link rel="shortcut icon" type="image/png" sizes="64x64" href="dart-64.png">
+    <link rel="shortcut icon" type="image/png" sizes="192x192" href="dart-192.png">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+    <meta name="mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+
+    <title>DartPad</title>
+
+    <link rel="preconnect" href="https://fonts.gstatic.com">
+    <link href="https://fonts.googleapis.com/css2?family=Roboto&family=Roboto+Mono&display=swap" rel="stylesheet">
+
+    <!-- codemirror -->
+    <link href="packages/codemirror/css/codemirror.css" rel="stylesheet" media="screen">
+    <link href="packages/codemirror/addon/lint/lint.css" rel="stylesheet" media="screen">
+    <link href="packages/codemirror/addon/hint/show-hint.css" rel="stylesheet" media="screen">
+    <link href="styles/cm-scrollbars.css" rel="stylesheet" media="screen">
+    <link href="styles/cm-dartpad-dark.css" rel="stylesheet" media="screen">
+    <link href="styles/cm-dartpad-light.css" rel="stylesheet" media="screen">
+
+    <script src="packages/codemirror/codemirror.js" defer></script>
+    <script src="packages/codemirror/addon/scroll/simplescrollbars.js" defer></script>
+    <script src="packages/split/split.min.js" defer></script>
+
+    <!-- check that local storage is enabled -->
+    <script src="scripts/check_localstorage.js"></script>
+
+    <script defer src="scripts/embed_flutter_showcase.dart.js"></script>
+    <script defer src="scripts/ga.js"></script>
+    <script type="text/javascript" src="dark_mode.js"></script>
+
+    <!-- begin Material Design -->
+    <script src="packages/mdc_web/material-components-web.min.js"></script>
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+    <!-- end Material Design -->
+</head>
+
+<body class="d-flex flex-column">
+<div id="progress-bar" role="progressbar" class="mdc-linear-progress hide">
+    <div class="mdc-linear-progress__buffering-dots"></div>
+    <div class="mdc-linear-progress__buffer"></div>
+    <div class="mdc-linear-progress__bar mdc-linear-progress__primary-bar">
+        <span class="mdc-linear-progress__bar-inner"></span>
+    </div>
+    <div class="mdc-linear-progress__bar mdc-linear-progress__secondary-bar">
+        <span class="mdc-linear-progress__bar-inner"></span>
+    </div>
+</div>
+<div id="navbar">
+    <nav>
+        <div class="mdc-tab-bar" role="tablist">
+            <div class="mdc-tab-scroller">
+                <div class="mdc-tab-scroller__scroll-area">
+                    <div class="mdc-tab-scroller__scroll-content">
+                        <button hidden id="editor-tab" class="mdc-tab mdc-tab--active" role="tab" aria-selected="true"
+                                selected
+                                tabindex="0">
+                             <span class="mdc-tab__content">
+                                 <span class="mdc-tab__text-label">Code</span>
+                             </span>
+                            <span class="mdc-tab-indicator mdc-tab-indicator--active">
+                                 <span class="mdc-tab-indicator__content mdc-tab-indicator__content--underline"></span>
+                             </span>
+                            <span class="mdc-tab__ripple"></span>
+                        </button>
+                        <button hidden id="solution-tab" class="mdc-tab mdc-tab" role="tab" tabindex="0">
+                             <span class="mdc-tab__content">
+                                 <span class="mdc-tab__text-label">Solution</span>
+                             </span>
+                            <span class="mdc-tab-indicator mdc-tab-indicator">
+                                 <span class="mdc-tab-indicator__content mdc-tab-indicator__content--underline"></span>
+                             </span>
+                            <span class="mdc-tab__ripple"></span>
+                        </button>
+                        <button id="test-tab" class="mdc-tab mdc-tab" role="tab" tabindex="0">
+                             <span class="mdc-tab__content">
+                                 <span class="mdc-tab__text-label">Tests</span>
+                            </span>
+                            <span class="mdc-tab-indicator mdc-tab-indicator">
+                                 <span class="mdc-tab-indicator__content mdc-tab-indicator__content--underline"></span>
+                             </span>
+                            <span class="mdc-tab__ripple"></span>
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </nav>
+</div>
+<section id="tab-container">
+    <div hidden id="editor-and-console-container">
+        <div class="nav-buttons">
+            <div class="position-relative text-right pr-2">
+                <button id="menu-button" class="mdc-icon-button material-icons">more_vert</button>
+                <div id="main-menu" class="mdc-menu mdc-menu-surface">
+                    <ul class="mdc-list" role="menu" aria-hidden="true" aria-orientation="vertical" tabindex="-1">
+                        <li hidden id="show-test-menu-item" class="mdc-list-item" role="menuitem">
+                        <span id="show-test-checkmark" class="mdc-list-item__graphic hide">
+                            <i class="material-icons mdc-select__icon" tabindex="-1" role="button">check</i>
+                        </span>
+                            <span class="mdc-list-item__text">Show tests</span>
+                        </li>
+                        <li hidden id="editable-test-solution-menu-item" class="mdc-list-item" role="menuitem">
+                      <span id="editable-test-solution-checkmark" class="mdc-list-item__graphic hide">
+                          <i class="material-icons mdc-select__icon" tabindex="-1" role="button">check</i>
+                      </span>
+                            <span class="mdc-list-item__text">Editable test/solution</span>
+                        </li>
+                        <li id="toggle-null-safety-menu-item" class="mdc-list-item" role="menuitem">
+                    <span id="toggle-null-safety-checkmark" class="mdc-list-item__graphic hide">
+                      <i class="material-icons mdc-select__icon" tabindex="-1" role="button">check</i>
+                    </span>
+                            <span class="mdc-list-item__text">Null Safety</span>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+            <button hidden id="install-button" class="mdc-button">Install SDK</button>
+            <button id="show-hint" class="mdc-button">Hint</button>
+            <button id="format-code" class="mdc-button">Format</button>
+            <button id="reload-gist" class="mdc-button">Reset</button>
+        </div>
+        <div id="editor-container">
+            <div id="user-code-view" class="flex-auto d-flex flex-row no-overflow">
+                <div id="user-code-editor" spellcheck="false"></div>
+            </div>
+            <div hidden id="solution-view" class="flex-auto d-flex flex-row no-overflow" spellcheck="false">
+                <div id="solution-editor" class="flex-auto d-flex flex-column" spellcheck="false"></div>
+            </div>
+            <div hidden id="test-view" class="flex-auto d-flex flex-row no-overflow" spellcheck="false">
+                <div id="test-editor" class="flex-auto d-flex flex-column" spellcheck="false"></div>
+            </div>
+        </div>
+        <div class="editor-button-group">
+            <div id="dartbusy" class="busylight"></div>
+            <button id="copy-code" title="Copy code" class="mdc-icon-button material-icons">file_copy</button>
+            <button hidden id="open-in-dartpad" title="Full screen" class="mdc-icon-button material-icons">launch</button>
+        </div>
+        <div id="console-output-footer" class="footer-top-border" hidden>
+            <div id="console-output-header" style="justify-content: left">
+                <div id="console-expand-icon-container">
+                    <button id="console-expand-icon" title="Expand console" class="mdc-icon-button material-icons">
+                        expand_less
+                    </button>
+                </div>
+                <span class="view-label">
+                    Console <span id="unread-console-counter" class="Counter" hidden></span>
+                </span>
+            </div>
+            <div id="console-output-container" class="console custom-scrollbar" hidden></div>
+        </div>
+    </div>
+    <div id="web-output">
+        <span id="web-output-label" class="view-label">UI Output</span>
+        <iframe id="frame" sandbox="allow-scripts" class="flex-auto">
+        </iframe>
+    </div>
+    <div class="mdc-snackbar">
+        <div class="mdc-snackbar__surface">
+            <div class="mdc-snackbar__label"
+                 role="status"
+                 aria-live="polite">
+            </div>
+        </div>
+    </div>
+</section>
+
+<footer flex layout horizontal class="footer">
+    <div class="editor-tabs">
+        <button id="editor-panel-show-code-button"
+                class="editor-tab mdc-button">
+            <i class="material-icons mdc-button__icon">code</i>
+            Show code
+        </button>
+        <button id="execute" class="mdc-button">
+            <i class="material-icons mdc-button__icon">play_arrow</i>
+            Run
+        </button>
+    </div>
+    <div id="feature-message" class="info-message"></div>
+    <div id="issues-message" class="info-message"></div>
+    <button id="issues-toggle" class="mdc-button mdc-button--dense mdc-button--outlined" hidden></button>
+</footer>
+
+<div id="flash-container" class="position-fixed right-2 bottom-6">
+    <div id="test-result-box" class="flash flash-warn" hidden>
+        <div title="Close" class="close-flash-container">
+            <button class="close-flash-button mdc-icon-button material-icons">close</button>
+        </div>
+        <div class="message-container custom-scrollbar"></div>
+    </div>
+    <div id="hint-box" class="flash" hidden>
+        <div title="Close" class="close-flash-container">
+            <button class="close-flash-button mdc-icon-button material-icons">close</button>
+        </div>
+        <div class="message-container custom-scrollbar"></div>
+    </div>
+    <div id="issues" hidden></div>
+</div>
+
+<div class="mdc-dialog"
+     role="alertdialog"
+     aria-modal="true"
+     aria-labelledby="my-dialog-title"
+     aria-describedby="my-dialog-content">
+    <div class="mdc-dialog__container">
+        <div class="mdc-dialog__surface">
+            <h2 class="mdc-dialog__title" id="my-dialog-title"></h2>
+            <div class="mdc-dialog__content" id="my-dialog-content"></div>
+            <footer class="mdc-dialog__actions">
+                <button type="button" id="dialog-left-button" class="mdc-button mdc-dialog__button">
+                    <span class="mdc-button__label">No</span>
+                </button>
+                <button type="button" id="dialog-right-button" class="mdc-button mdc-dialog__button">
+                    <span class="mdc-button__label">Yes</span>
+                </button>
+            </footer>
+        </div>
+    </div>
+    <div class="mdc-dialog__scrim"></div>
+</div>
+
+</body>
+
+</html>
